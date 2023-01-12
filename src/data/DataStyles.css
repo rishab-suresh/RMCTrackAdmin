@@ -1,0 +1,21 @@
+.pagination{
+    display: flex;
+    margin: 2px;
+    margin-right: 15px;
+    padding: 10px;
+}
+
+.pages-pagination{
+    display: flex;
+    flex-direction: row;
+}
+
+ul{
+    list-style: none;
+    margin: 2px;
+    
+}
+
+li{
+    margin: 10px;
+}
