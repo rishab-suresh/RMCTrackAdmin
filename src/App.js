@@ -9,7 +9,8 @@ import { CallLogs } from "./scenes/CallLogs";
 import { PiechartPage } from "./scenes/Piechart";
 import { UserDetails } from "./scenes/Team/MemberDetails";
 
-function App() {
+
+export function App() {
   const [theme, colorMode] = useMode();
 
   return (

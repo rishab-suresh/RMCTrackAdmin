@@ -4,13 +4,20 @@ import { GraphDescription } from "../../components/GraphDescription";
 import { Header } from "../../components/Header";
 import { CallGraph } from "../../data/LineChart";
 import { LoginStatus } from "../../data/LoginStatus";
+import { useState } from "react";
+
 
 export const DashBoard = () => {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   return (
     <Box>
       <Box m="20px">
         <Box display="flex" justifyContent="space-between" alignItems="center">
-          <Header title="DASHBOARD" subtitle="General Overview" />
+          <Header
+            title="DASHBOARD"
+            subtitle="General Overview"
+            setIsLoggedIn={setIsLoggedIn}
+          />
         </Box>
       </Box>
       <Box m="30px">
@@ -19,10 +26,10 @@ export const DashBoard = () => {
           Gdesc="Amount of Calls a Day"
         />
         <Box display="flex" flexDirection="row">
-          <Box mr={2}>
+          <Box>
             <CallGraph />
           </Box>
-          <Box width="100%">
+          <Box width="100%" mb="10px">
             <LoginStatus />
           </Box>
         </Box>

@@ -1,5 +1,5 @@
 import { onValue, ref } from "firebase/database";
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Header } from "../../components/Header";
 import { db } from "../../firebaseconfig";
 import Button from "@mui/material/Button";
@@ -10,7 +10,12 @@ import {
   TableRow,
   TableCell,
   TableBody,
+  Box,
+  useTheme,
+  IconButton,
 } from "@mui/material";
+import "./Team.css";
+import { ColorModeContext } from "../../theme";
 
 export const Team = () => {
   const [users, setUsers] = useState([]);
@@ -30,10 +35,34 @@ export const Team = () => {
   const handleViewProfile = (userId) => {
     navigate(`/user/${userId}`);
   };
+  const goToStats = () => {
+    navigate("/Activity");
+  };
+  const theme = useTheme();
+  const colorMode = useContext(ColorModeContext);
 
   return (
     <>
-      <Header title="Team Members" subtitle="Employees" />
+      <Box display="flex" justifyContent="space-between">
+        <Header title="Team Members" subtitle="Employees"  />
+        <IconButton>
+          {theme.palette.mode === "dark" ? (
+            <Button
+              sx={{ color: "#0ac392", cursor: "pointer" }}
+              onClick={goToStats}
+            >
+              View Team Stats
+            </Button>
+          ) : (
+            <Button
+              sx={{ backgroundcolor: "#3da58a", cursor: "pointer" }}
+              onClick={goToStats}
+            >
+              View Team Stats
+            </Button>
+          )}
+        </IconButton>
+      </Box>
 
       <Table>
         <TableHead>

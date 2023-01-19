@@ -4,6 +4,7 @@ import { onValue, ref } from "firebase/database";
 import { db } from "../firebaseconfig";
 import Pagination from "react-paginate";
 import "./DataStyles.css"
+import { Header } from "../components/Header";
 export const LoginStatus = () => {
   const [users, setUsers] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -37,7 +38,10 @@ export const LoginStatus = () => {
   } else {
     return (
       <>
-        <Box display="flex" >
+        <Box display="flex"
+        flexDirection="column"
+        >
+          <Header title="Login Status"/>
           <Table >
             <TableRow>
               <TableCell>Name</TableCell>

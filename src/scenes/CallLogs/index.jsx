@@ -16,6 +16,7 @@ import {
 } from "@mui/material";
 import { Search } from "@mui/icons-material";
 import { tokens } from "../../theme";
+import moment from "moment/moment";
 
 export const CallLogs = () => {
   const [calls, setCalls] = useState([]);
@@ -24,6 +25,12 @@ export const CallLogs = () => {
   const pageSize = 7;
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
+  const [dateFilter, setDateFilter] = useState({
+    date: null,
+    month: null,
+    year: null,
+  });
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
     onValue(ref(db, "All Calls"), (snapshot) => {
@@ -33,28 +40,38 @@ export const CallLogs = () => {
           ...userData,
         }))
       );
+      console.log(calls);
     });
   }, [setCalls]);
 
-  const filteredCalls = calls.filter(
-    (calls) =>
-      calls.Name.toString().toLowerCase().includes(search.toLowerCase()) ||
-      calls.Phone.toString().toLowerCase().includes(search.toLowerCase())
-  );
+  const filteredCalls = calls.filter((call) => {
+    if (dateFilter.date) {
+      const callDate = new Date(call.Date);
+      const filterDate = new Date(dateFilter.date);
+      const callMonth = moment(callDate).format("MMM");
+      const callYear = moment(callDate).format("YYYY");
+      const filterMonth = moment(filterDate).format("MMM");
+      const filterYear = moment(filterDate).format("YYYY");
+      return callMonth === filterMonth && callYear === filterYear;
+    }
+    return true;
+  });
+
+  console.log(filteredCalls);
 
   // Determine the starting and ending index of calls for the current page
   const indexOfLastCall = currentPage * pageSize;
   const indexOfFirstCall = indexOfLastCall - pageSize;
-
-  // Slice the calls array to get the calls for the current page
   const currentCalls = filteredCalls.slice(indexOfFirstCall, indexOfLastCall);
-
-  // Determine the number of pages based on the total number of calls and page size
   const totalPages = Math.ceil(filteredCalls.length / pageSize);
 
   return (
     <>
-      <Header title="Call Logs" subtitle="All Call Logs are listed here" />
+      <Header
+        title="Call Logs"
+        subtitle="All Call Logs are listed here"
+        setIsLoggedIn={setIsLoggedIn}
+      />
 
       <Box
         display="flex"
@@ -70,6 +87,15 @@ export const CallLogs = () => {
         <IconButton type="button" sx={{ p: 1 }}>
           <Search />
         </IconButton>
+      </Box>
+      <Box>
+        <input
+          type="month"
+          value={dateFilter.date || ""}
+          onChange={(e) =>
+            setDateFilter({ ...dateFilter, date: e.target.value })
+          }
+        />
       </Box>
 
       <Table>
