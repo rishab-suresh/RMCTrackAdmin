@@ -73,29 +73,40 @@ export const PiechartActivity = () => {
       (date) => moment(date).format("DD MMM YYYY") === selectedDate
     );
     if (matchingDate) {
+      let mailDuration = selectedUserData.Activity[matchingDate].mail_duration;
+      if (isNaN(mailDuration)) {
+        mailDuration = 0;
+      }
       data = [
         {
           name: "Break",
-          value: selectedUserData.Activity[matchingDate].break_duration,
+          value: selectedUserData.Activity[matchingDate].break_duration * 0.6,
           fill: "yellow",
         },
         {
           name: "Call",
-          value: selectedUserData.Activity[matchingDate].call_duration,
+          value: selectedUserData.Activity[matchingDate].call_duration / 60,
           fill: "green",
         },
         {
           name: "Meeting",
-          value: selectedUserData.Activity[matchingDate].meetings_duration,
+          value:
+            selectedUserData.Activity[matchingDate].meetings_duration * 0.6,
           fill: "orange",
+        },
+        {
+          name: "Mail",
+          value: mailDuration,
+          fill: "blue",
         },
         {
           name: "Idle",
           value:
             900 -
-            (selectedUserData.Activity[matchingDate].break_duration +
-              selectedUserData.Activity[matchingDate].call_duration +
-              selectedUserData.Activity[matchingDate].meetings_duration),
+            (selectedUserData.Activity[matchingDate].break_duration * 0.6 +
+              selectedUserData.Activity[matchingDate].call_duration / 60 +
+              mailDuration * 0.6 +
+              selectedUserData.Activity[matchingDate].meetings_duration * 0.6),
           fill: "salmon",
         },
       ];
@@ -129,7 +140,10 @@ export const PiechartActivity = () => {
               <p>Meeting Duration: {Math.round(data[2].value)} mins</p>
             </Box>
             <Box>
-              <p>Idle Duration: {Math.round(data[3].value)} mins</p>
+              <p>Idle Duration: {Math.round(data[4].value)} mins</p>
+            </Box>
+            <Box>
+              <p> On Mail Duration : {Math.round(data[3].value)}</p>
             </Box>
           </Box>
           <PieChart width={400} height={400}>

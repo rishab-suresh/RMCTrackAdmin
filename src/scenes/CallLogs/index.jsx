@@ -17,6 +17,7 @@ import {
 import { Search } from "@mui/icons-material";
 import { tokens } from "../../theme";
 import moment from "moment/moment";
+import { Link, useNavigate } from "react-router-dom";
 
 export const CallLogs = () => {
   const [calls, setCalls] = useState([]);
@@ -24,6 +25,7 @@ export const CallLogs = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 7;
   const theme = useTheme();
+  const Navigate = useNavigate();
   const colors = tokens(theme.palette.mode);
   const [dateFilter, setDateFilter] = useState({
     date: null,
@@ -33,14 +35,22 @@ export const CallLogs = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
-    onValue(ref(db, "All Calls"), (snapshot) => {
-      setCalls(
-        Object.entries(snapshot.val()).map(([userId, userData]) => ({
-          userId,
-          ...userData,
-        }))
+    onValue(ref(db, "users"), (snapshot) => {
+      const allCalls = Object.entries(snapshot.val()).map(
+        ([userId, userData]) => {
+          const calls = userData.Calls;
+          if (calls) {
+            return Object.entries(calls).map(([callId, callData]) => {
+              return {
+                userId,
+                callId,
+                ...callData,
+              };
+            });
+          }
+        }
       );
-      console.log(calls);
+      setCalls(allCalls.flat());
     });
   }, [setCalls]);
 
@@ -52,6 +62,17 @@ export const CallLogs = () => {
       const callYear = moment(callDate).format("YYYY");
       const filterMonth = moment(filterDate).format("MMM");
       const filterYear = moment(filterDate).format("YYYY");
+      if (search !== "") {
+        return (
+          (call.Name.toLowerCase().includes(search.toLowerCase()) ||
+            call.Phone.toString().includes(search) ||
+            call.Team.toLowerCase().includes(search.toLowerCase()) ||
+            call.Query.toLowerCase().includes(search.toLowerCase()) ||
+            call.City.toLowerCase().includes(search.toLowerCase())) &&
+          callMonth === filterMonth &&
+          callYear === filterYear
+        );
+      }
       return callMonth === filterMonth && callYear === filterYear;
     }
     return true;
@@ -103,10 +124,12 @@ export const CallLogs = () => {
           <TableRow>
             <TableCell>Name</TableCell>
             <TableCell>Phone</TableCell>
-            <TableCell>Team</TableCell>
-            <TableCell>Query</TableCell>
+            <TableCell>Category</TableCell>
+            <TableCell>Complete</TableCell>
+            <TableCell>CompleteDate</TableCell>
             <TableCell>City</TableCell>
             <TableCell>Date</TableCell>
+            <TableCell>Remarks </TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -114,10 +137,17 @@ export const CallLogs = () => {
             <TableRow key={call.callId}>
               <TableCell>{call.Name}</TableCell>
               <TableCell>{call.Phone}</TableCell>
-              <TableCell>{call.Team}</TableCell>
-              <TableCell>{call.Query}</TableCell>
+              <TableCell>{call.Category}</TableCell>
+              <TableCell>{call.Complete}</TableCell>
+              <TableCell>{call.CompleteDate}</TableCell>
               <TableCell>{call.City}</TableCell>
               <TableCell>{call.Date}</TableCell>
+              <TableCell>
+                {" "}
+                <Link to={`/remarks/${call.Phone}`}>
+                  <Button>Remarks</Button>
+                </Link>
+              </TableCell>
             </TableRow>
           ))}
         </TableBody>

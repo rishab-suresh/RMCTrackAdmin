@@ -12,15 +12,14 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Header } from "../../components/Header";
 import { db } from "../../firebaseconfig";
-import Pagination from "react-paginate";
 import "./Team.css";
 
 export const UserDetails = () => {
   const { userId } = useParams();
   const [user, setUser] = useState(null);
   const [calls, setCalls] = useState(null);
-  const [currentPage, setCurrentPage] = useState(0);
-  const [loginTime, setLoginTime] = useState(null)
+  const [loginTime, setLoginTime] = useState(null);
+  const [workDuration, setWorkDuration] = useState(null);
 
   useEffect(() => {
     onValue(ref(db, `users/${userId}`), (snapshot) => {
@@ -34,31 +33,37 @@ export const UserDetails = () => {
   }, [userId]);
   useEffect(() => {
     if (user && user.Activity) {
-        const today = new Date();
-        const date =
-          today.getDate() +
-          " " +
-          today.toLocaleString("en-us", { month: "short" }) +
-          " " +
-          today.getFullYear();
-        if (user.Activity[date]) {
-            setLoginTime(user.Activity[date].Login);
-        }
+      const today = new Date();
+      const date =
+        today.getDate() +
+        " " +
+        today.toLocaleString("en-us", { month: "short" }) +
+        " " +
+        today.getFullYear();
+      if (user.Activity[date]) {
+        setLoginTime(user.Activity[date].Login);
+      }
     }
-}, [user]);
+  }, [user]);
+  useEffect(() => {
+    if (user && user.Activity && loginTime) {
+      const today = new Date();
+      const date =
+        today.getDate() +
+        " " +
+        today.toLocaleString("en-us", { month: "short" }) +
+        " " +
+        today.getFullYear();
+      if (user.Activity[date]) {
+        const endOfShift = new Date(`${date} 19:00:00`);
+        const duration = endOfShift.getTime() - new Date(loginTime).getTime();
+        setWorkDuration(duration);
+      }
+    }
+  }, [user, loginTime]);
   if (!user || !calls) {
     return <div>Loading...</div>;
   }
-
-  const rowsPerPage = 5;
-  const totalPages = Math.ceil(Object.entries(calls).length / rowsPerPage);
-  const startIndex = currentPage * rowsPerPage;
-  const endIndex = startIndex + rowsPerPage;
-  const currentCalls = Object.entries(calls).slice(startIndex, endIndex);
-
-  const handlePageChange = ({ selected }) => {
-    setCurrentPage(selected);
-  };
 
   return (
     <>
@@ -74,47 +79,43 @@ export const UserDetails = () => {
           <Typography>Team: {user.Team}</Typography>
         </Box>
         <Box display="flex" flexDirection="column" marginRight="30px">
-          <Box> <Typography>Is Logged In: {user.Login}</Typography> </Box>
-          <Box> <Typography>Login Time:{loginTime}</Typography> </Box>
-          <Box> <Typography>Work Duration: </Typography> </Box>
+          <Box>
+            {" "}
+            <Typography>Is Logged In: {user.Login}</Typography>{" "}
+          </Box>
+          <Box>
+            {" "}
+            <Typography>Login Time:{loginTime}</Typography>{" "}
+          </Box>
+          <Box>
+            {" "}
+            <Typography>Work Duration: {workDuration} </Typography>{" "}
+          </Box>
         </Box>
       </Box>
-
       <Box>
-        {calls ? (
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>Number</TableCell>
-                <TableCell>Name</TableCell>
-                <TableCell>Category</TableCell>
-                <TableCell>Completed</TableCell>
-                <TableCell>Remarks</TableCell>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell>Number</TableCell>
+              <TableCell>Name</TableCell>
+              <TableCell>Category</TableCell>
+              <TableCell>Completed</TableCell>
+              <TableCell>Remarks</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {Object.entries(calls).map(([id, call]) => (
+              <TableRow key={id}>
+                <TableCell>{id}</TableCell>
+                <TableCell>{call.Name}</TableCell>
+                <TableCell>{call.Category}</TableCell>
+                <TableCell>{call.Complete}</TableCell>
+                <TableCell>{call.Remarks}</TableCell>
               </TableRow>
-            </TableHead>
-            <TableBody>
-              {currentCalls.map(([callId, callData]) => (
-                <TableRow key={callId}>
-                  <TableCell>{callId}</TableCell>
-                  <TableCell>{callData.Name}</TableCell>
-                  <TableCell>{callData.Category}</TableCell>
-                  <TableCell>{callData.Complete}</TableCell>
-                  <TableCell>{callData.Remarks}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        ) : (
-          <div>Loading call data...</div>
-        )}
-        <Pagination
-          pageCount={totalPages}
-          forcePage={currentPage}
-          onPageChange={handlePageChange}
-          marginPagesDisplayed={2}
-          pageRangeDisplayed={5}
-          className="pagination"
-        />
+            ))}
+          </TableBody>
+        </Table>
       </Box>
     </>
   );

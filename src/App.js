@@ -8,6 +8,7 @@ import { Team } from "./scenes/Team/Index";
 import { CallLogs } from "./scenes/CallLogs";
 import { PiechartPage } from "./scenes/Piechart";
 import { UserDetails } from "./scenes/Team/MemberDetails";
+import { Remarks } from "./scenes/CallLogs/Remarks";
 
 
 export function App() {
@@ -24,6 +25,7 @@ export function App() {
             <Routes>
               <Route path="/" element={<DashBoard />} />
               <Route path="/Team" element={<Team />} />
+              <Route path="/remarks/:phoneNumber" element={<Remarks/>} />
               <Route path="/contacts" element={<CallLogs />} />
               <Route path="/Activity" element={<PiechartPage/>}/>
               <Route path="/user/:userId" element={<UserDetails/>}/>
